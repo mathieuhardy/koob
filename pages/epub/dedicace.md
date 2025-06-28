@@ -1,0 +1,3 @@
+::: {.dedicace}
+# DEDICACE
+:::

@@ -1,0 +1,164 @@
+h1, h2, h3 {
+    text-align: center;
+    line-height: normal;
+    padding: 0;
+    margin: 0;
+}
+
+h1 {
+    font-size: 2.2em;
+}
+
+h2 {
+    font-size: 1.6em;
+}
+
+h3 {
+    font-size: 1.2em;
+}
+
+/* Couverture */
+
+.couverture {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  padding: 2cm;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.couverture h1 {
+  font-size: 3rem;
+  margin: 0 0 1cm 0;
+}
+
+.couverture h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.couverture h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.couverture img {
+  max-width: 90%;
+  height: auto;
+  margin: 1cm 0;
+}
+
+/* Titre */
+
+.titre {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+/* Faux titre */
+
+.faux-titre {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+/* Ours */
+
+.ours {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.ours h2 {
+    font-size: 0.5em;
+}
+
+/* Dédicace */
+
+.dedicace {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.dedicace h1 {
+   font-size: 1em;
+}
+
+/* Épigraphe */
+
+.epigraphe {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.epigraphe h1 {
+  font-size: 1em;
+}
+
+/* Préface */
+
+.preface {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.preface h1 {
+    font-size: 1em;
+}
+
+/* Avant-propos */
+
+.avant-propos {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.avant-propos h1 {
+    font-size: 1em;
+}
+
+/* Chapitre */
+
+.chapitre {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+}
+
+.chapitre h3 {
+    margin-top: 1em;
+}

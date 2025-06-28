@@ -1,0 +1,5 @@
+::: {.titre}
+# TITRE
+## AUTEUR
+### COLLECTION
+:::
