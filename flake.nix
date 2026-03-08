@@ -1,0 +1,34 @@
+# nix build
+# nix profile install
+
+{
+  description = "Koob";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  };
+
+  outputs =
+    { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+    in
+    {
+      packages.${system}.default = pkgs.rustPlatform.buildRustPackage {
+        pname = "koob";
+        version = "0.1.0";
+
+        src = ./.;
+
+        cargoLock = {
+          lockFile = ./Cargo.lock;
+        };
+      };
+
+      apps.${system}.default = {
+        type = "app";
+        program = "${self.packages.${system}.default}/bin/koob";
+      };
+    };
+}
