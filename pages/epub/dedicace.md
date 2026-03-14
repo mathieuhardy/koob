@@ -1,3 +1,5 @@
 ::: {.dedicace}
-# DEDICACE
+::: {.inner}
+DEDICACE
+:::
 :::

@@ -1,3 +1,5 @@
 ::: {.preface}
-# PREFACE
+::: {.inner}
+PREFACE
+:::
 :::

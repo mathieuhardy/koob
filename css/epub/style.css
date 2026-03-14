@@ -1,164 +1,307 @@
-h1, h2, h3 {
-    text-align: center;
-    line-height: normal;
-    padding: 0;
-    margin: 0;
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Global */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+html,
+body {
+  height: 100%;
+}
+
+body > section {
+  display: block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3 {
+  text-align: center;
+  line-height: normal;
+  padding: 0;
+  margin: 0;
 }
 
 h1 {
-    font-size: 2.2em;
+  font-size: 2.2em;
 }
 
 h2 {
-    font-size: 1.6em;
+  font-size: 1.6em;
 }
 
 h3 {
-    font-size: 1.2em;
+  font-size: 1.2em;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Empty */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.empty {
+  page-break-after: always;
+  height: 1px;
+  display: block;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Couverture */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .couverture {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  height: 100vh;
-  padding: 2cm;
-  box-sizing: border-box;
+  page-break-after: always;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.couverture > .top,
+.couverture > .middle,
+.couverture > .bottom {
+  display: table-row;
+}
+
+.couverture > .top > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: top;
+  text-align: center;
+}
+
+.couverture > .middle > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.couverture > .bottom > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: bottom;
   text-align: center;
 }
 
 .couverture h1 {
-  font-size: 3rem;
-  margin: 0 0 1cm 0;
+  font-size: 3em;
 }
 
 .couverture h2 {
-  font-size: 2rem;
+  font-size: 2em;
   margin: 0;
 }
 
 .couverture h3 {
-  font-size: 1rem;
+  font-size: 1em;
   margin: 0;
 }
 
 .couverture img {
   max-width: 90%;
   height: auto;
-  margin: 1cm 0;
+  display: block;
+  margin: 0 auto;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Titre */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .titre {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
-/* Faux titre */
-
-.faux-titre {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-}
-
-/* Ours */
-
-.ours {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-}
-
-.ours h2 {
-    font-size: 0.5em;
-}
-
-/* Dédicace */
-
-.dedicace {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
-}
-
-.dedicace h1 {
-   font-size: 1em;
-}
-
-/* Épigraphe */
-
-.epigraphe {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+.titre > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
   text-align: center;
 }
 
-.epigraphe h1 {
+.titre p,
+.titre h1,
+.titre h2,
+.titre h3 {
+  width: 100%;
+  text-align: center;
+}
+
+.titre h1 {
+  margin-bottom: 1em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Faux titre */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.faux-titre {
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.faux-titre > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.faux-titre p,
+.faux-titre h1 {
+  width: 100%;
+  text-align: center;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Ours */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.ours {
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.ours > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: bottom;
+  text-align: center;
+}
+
+.ours p,
+.ours h2 {
+  width: 100%;
+  text-align: center;
+  font-size: 0.5em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Dédicace */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.dedicace {
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.dedicace > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.dedicace p {
+  width: 100%;
+  text-align: center;
   font-size: 1em;
 }
 
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* Épigraphe */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.epigraphe {
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
+}
+
+.epigraphe > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.epigraphe p {
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Préface */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .preface {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
-.preface h1 {
-    font-size: 1em;
+.preface > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
 }
 
+.preface p {
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Avant-propos */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .avant-propos {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
+  page-break-before: always;
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
-.avant-propos h1 {
-    font-size: 1em;
+.avant-propos > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
 }
 
+.avant-propos p {
+  width: 100%;
+  text-align: center;
+  font-size: 1em;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 /* Chapitre */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .chapitre {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    text-align: center;
+  page-break-before: always;
+  page-break-after: always;
+  display: table;
+  width: 100%;
+  height: 100%;
 }
 
+.chapitre > .inner {
+  display: table-cell;
+  width: 100%;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.chapitre p,
+.chapitre h1,
+.chapitre h2,
 .chapitre h3 {
-    margin-top: 1em;
+  width: 100%;
+  text-align: center;
 }

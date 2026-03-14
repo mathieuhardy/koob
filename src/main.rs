@@ -219,9 +219,6 @@ fn make_epub(inputs: PandocInputs) -> Result<()> {
     // Create CSS options
     let css_options = make_css_options(&inputs)?;
 
-    // Create filters
-    let f_pagebreak = make_filter(FilterType::PageBreak, &inputs, &output_path)?;
-
     // Create metadata files
     for r#type in [MetadataType::Epub, MetadataType::Date] {
         let _meta = make_metadata(r#type, &inputs, &output_path)?;
@@ -271,7 +268,6 @@ fn make_epub(inputs: PandocInputs) -> Result<()> {
         .set_output_format(OutputFormat::Epub, vec![])
         // .add_option(PandocOption::EpubCoverImage(cover_path))
         .add_options(&css_options)
-        .arg("lua-filter", &f_pagebreak.display().to_string())
         .arg("split-level", "1")
         .clone()
         .execute()?;
@@ -369,9 +365,11 @@ fn make_pdf(inputs: PandocInputs) -> Result<()> {
 fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>> {
     let opts = match inputs.edition.r#type {
         EditionType::Epub => {
+            let blitz_content = include_str!("../css/epub/blitz.css");
             let content = include_str!("../css/epub/style.css");
 
             let mut file = std::fs::File::create("/tmp/koob_epub_style.css")?;
+            file.write_all(blitz_content.as_bytes())?;
             file.write_all(content.as_bytes())?;
 
             vec![PandocOption::Css("/tmp/koob_epub_style.css".to_string())]
@@ -394,7 +392,7 @@ fn make_filter(r#type: FilterType, inputs: &PandocInputs, output_path: &Path) ->
     let (filepath, content) = match r#type {
         FilterType::PageBreak => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../filters/epub/pagebreak.lua"),
+                EditionType::Epub => "",
                 EditionType::Pdf => include_str!("../filters/pdf/pagebreak.lua"),
             };
 

@@ -1,5 +1,5 @@
 function Para(el)
-  if #el.content == 1 and el.content[1].text == "===" then
+  if #el.content == 1 and el.content[1].text == ":::" then
     return pandoc.RawBlock("tex", "\\newpage{}")
   elseif el.content == "::: {.chapitre}" then
     return {
