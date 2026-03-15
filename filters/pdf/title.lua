@@ -17,39 +17,26 @@ end
 
 function Para(el)
   if chapter_number ~= nil or chapter_title ~= nil or chapter_subtitle ~= nil then
-    local latex = [[
-\begin{titlepage}
-  \begin{center}
-    \vspace*{\fill}
-    \begin{minipage}{\textwidth}
-      \centering
-]]
+    local lines = { "#chapitre-page(" }
 
     if chapter_number ~= nil then
-      latex = latex .. string.format([[ {\Large %s} \\[1cm] ]], chapter_number)
+      lines[#lines + 1] = string.format("  numero: [%s],", chapter_number)
     end
-
     if chapter_title ~= nil then
-      latex = latex .. string.format([[ {\Large %s} \\[1cm] ]], chapter_title)
+      lines[#lines + 1] = string.format("  titre: [%s],", chapter_title)
     end
-
     if chapter_subtitle ~= nil then
-      latex = latex .. string.format([[ {\normalsize %s} \\[1cm] ]], chapter_subtitle)
+      lines[#lines + 1] = string.format("  sous-titre: [%s],", chapter_subtitle)
     end
 
-    local latex = latex .. [[
-    \end{minipage}
-    \vspace*{\fill}
-  \end{center}
-\end{titlepage}
-]]
+    lines[#lines + 1] = ")"
 
     chapter_number = nil
     chapter_title = nil
     chapter_subtitle = nil
 
     return {
-      pandoc.RawBlock("latex", latex),
+      pandoc.RawBlock("typst", table.concat(lines, "\n")),
       el,
     }
   end
@@ -57,7 +44,7 @@ end
 
 return {
   {
-    Header = Header,
-    Para = Para,
+    -- Header = Header,
+    -- Para = Para,
   },
 }

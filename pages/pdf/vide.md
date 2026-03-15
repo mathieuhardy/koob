@@ -1,4 +1,1 @@
 :::
-
-\thispagestyle{empty}
-\mbox{}

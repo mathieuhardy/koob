@@ -403,12 +403,20 @@ fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
 
     // Create the PDF file using Pandoc
     Pandoc::new()
-        // .set_show_cmdline(true)
+        // Input/output
         .set_input(InputKind::Files(pandoc_inputs))
         .set_input_format(InputFormat::Markdown, vec![])
         .set_output(OutputKind::File(pdf_path.clone()))
         .set_output_format(OutputFormat::Pdf, vec![])
+        // Typst engine
+        .add_option(PandocOption::PdfEngine(PathBuf::from("typst")))
+        .add_option(PandocOption::Template(PathBuf::from(
+            "templates/template.typ",
+        )))
+        .arg("variable", "mainfont=Liberation Sherif")
+        // style sheets
         .add_options(&css_options)
+        // Pandoc filters
         .arg("lua-filter", &f_pagebreak.display().to_string())
         .arg("lua-filter", &f_title.display().to_string())
         // .arg("split-level", "1")
