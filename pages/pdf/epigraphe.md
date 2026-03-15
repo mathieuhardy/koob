@@ -5,7 +5,7 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Large EPIGRAPHE}
+            {\Large {{epigraphe}} }
         \end{minipage}
         \vspace*{\fill}
     \end{center}

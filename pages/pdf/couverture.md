@@ -12,7 +12,7 @@ header-includes:
 \vspace*{1cm}
 
 \begin{center}
-  {\normalsize COLLECTION}
+  {\normalsize {{collection}} }
 \end{center}
 
 \vfill
@@ -22,13 +22,13 @@ header-includes:
 
   \vspace{1cm}
 
-  \includegraphics[width=0.9\textwidth]{COVER_PATH}
+  \includegraphics[width=0.9\textwidth]{ {{cover_path}} }
 \end{center}
 
 \vfill
 
 \begin{center}
-  {\LARGE AUTEUR}
+  {\LARGE {{auteur}} }
 \end{center}
 
 \end{titlepage}

@@ -5,7 +5,7 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Large PREFACE}
+            {\Large {{preface}} }
         \end{minipage}
         \vspace*{\fill}
     \end{center}

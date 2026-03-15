@@ -5,7 +5,7 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Large AVANT_PROPOS}
+            {\Large {{avant_propos}} }
         \end{minipage}
         \vspace*{\fill}
     \end{center}

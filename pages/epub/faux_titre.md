@@ -1,5 +1,5 @@
 ::: {.faux-titre}
 ::: {.inner}
-# TITRE
+# {{titre}}
 :::
 :::

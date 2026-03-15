@@ -5,9 +5,9 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Huge TITRE} \\[1cm]
-            {\Large AUTEUR} \\[1cm]
-            {\Large COLLECTION}
+            {\Huge {{titre}} } \\[1cm]
+            {\Large {{auteur}} } \\[1cm]
+            {\Large {{collection}} }
         \end{minipage}
         \vspace*{\fill}
     \end{center}

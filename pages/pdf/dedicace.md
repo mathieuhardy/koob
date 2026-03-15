@@ -5,7 +5,7 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Large DEDICACE}
+            {\Large {{dedicace}} }
         \end{minipage}
         \vspace*{\fill}
     \end{center}

@@ -1,5 +1,5 @@
 ::: {.preface}
 ::: {.inner}
-PREFACE
+{{preface}}
 :::
 :::

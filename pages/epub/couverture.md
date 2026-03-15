@@ -1,20 +1,20 @@
 ::: {.couverture}
 ::: {.top}
 ::: {.inner}
-### COLLECTION
+### {{collection}}
 :::
 :::
 
 ::: {.middle}
 ::: {.inner}
-# TITRE
+# {{titre}}
 ![](COVER_PATH){width=90%}
 :::
 :::
 
 ::: {.bottom}
 ::: {.inner}
-## AUTEUR
+## {{auteur}}
 :::
 :::
 :::

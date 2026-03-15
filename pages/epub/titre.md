@@ -1,7 +1,7 @@
 ::: {.titre}
 ::: {.inner}
-# TITRE
-## AUTEUR
-### COLLECTION
+# {{titre}}
+## {{auteur}}
+### {{collection}}
 :::
 :::

@@ -1,8 +1,8 @@
 ::: {.ours}
 ::: {.inner}
-## © AUTEUR, ANNEE_COPYRIGHT
-## Éditeur : EDITEUR
-## ISBN : ISBN_NUMBER
-## Dépôt légal : DATE_DEPOT_LEGAL
+## © {{auteur}}, {{annee_copyright}}
+## Éditeur : {{editeur}}
+## ISBN : {{isbn_number}}
+## Dépôt légal : {{date_depot_legal}}
 :::
 :::

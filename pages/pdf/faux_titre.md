@@ -5,7 +5,7 @@
         \vspace*{\fill}
         \begin{minipage}{\textwidth}
             \centering
-            {\Huge TITRE} \\[1cm]
+            {\Huge {{titre}} } \\[1cm]
         \end{minipage}
         \vspace*{\fill}
     \end{center}

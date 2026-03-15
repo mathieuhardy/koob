@@ -1,12 +1,35 @@
-use anyhow::{anyhow, Result};
-use pandoc::{InputFormat, InputKind, OutputFormat, OutputKind, Pandoc, PandocOption};
-use serde::{Deserialize, Serialize};
-use simply_colored::*;
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+
+use handlebars::Handlebars;
+use pandoc::{InputFormat, InputKind, OutputFormat, OutputKind, Pandoc, PandocOption};
+use serde::{Deserialize, Serialize};
+use simply_colored::*;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+enum Error {
+    #[error(transparent)]
+    Handlebars(#[from] handlebars::RenderError),
+
+    #[error(transparent)]
+    IO(#[from] std::io::Error),
+
+    #[error(transparent)]
+    Glob(#[from] glob::PatternError),
+
+    #[error("{0}")]
+    MissingCover(PathBuf),
+
+    #[error(transparent)]
+    Pandoc(#[from] pandoc::PandocError),
+
+    #[error(transparent)]
+    Yaml(#[from] serde_yaml::Error),
+}
 
 #[derive(Debug)]
 enum MetadataType {
@@ -108,8 +131,43 @@ struct PdfMetadata {
     geometry: String,
 }
 
-fn main() -> Result<()> {
-    let books_metadata = glob::glob("./**/metadata.yml")?;
+#[derive(Clone, Debug, Serialize)]
+struct Replacements {
+    titre: String,
+    auteur: String,
+    collection: String,
+    annee_copyright: String,
+    date_depot_legal: String,
+    isbn_number: String,
+    cover_path: PathBuf,
+    avant_propos: String,
+    dedicace: String,
+    editeur: String,
+    epigraphe: String,
+    preface: String,
+}
+
+impl From<PandocInputs> for Replacements {
+    fn from(inputs: PandocInputs) -> Self {
+        Replacements {
+            titre: inputs.metadata.titre,
+            auteur: inputs.metadata.auteur,
+            collection: inputs.metadata.collection,
+            annee_copyright: inputs.edition.annee_copyright,
+            date_depot_legal: inputs.edition.date_depot_legal,
+            isbn_number: inputs.edition.isbn,
+            cover_path: inputs.cover_path,
+            avant_propos: inputs.edition.avant_propos,
+            dedicace: inputs.edition.dedicace,
+            editeur: inputs.edition.editeur,
+            epigraphe: inputs.edition.epigraphe,
+            preface: inputs.edition.preface,
+        }
+    }
+}
+
+fn main() -> Result<(), Error> {
+    let books_metadata = glob::glob("./**/book.yml")?;
 
     for metadata_path in books_metadata.flatten() {
         if let Some(book_path) = metadata_path.parent() {
@@ -120,7 +178,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
+fn process_book(book_path: &Path, metadata_path: &Path) -> Result<(), Error> {
     println!("{BG_MAGENTA}{BOLD} {} {RESET}", book_path.display());
 
     // Read metadata of the book
@@ -135,16 +193,16 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
     let cover_path = book_path.join(&metadata.cover);
 
     if !fs::exists(&cover_path)? {
-        return Err(anyhow!("Missing cover: {:?}", cover_path));
+        return Err(Error::MissingCover(cover_path));
     }
 
     // Get editions manifests
-    let manifests = glob::glob(&format!("{}/**/manifest.yml", book_path.display()))?;
+    let editions = glob::glob(&format!("{}/**/edition.yml", book_path.display()))?;
 
-    for manifest_path in manifests.flatten() {
+    for edition_path in editions.flatten() {
         println!(
             "  {BG_BLUE}{BOLD} {} {RESET}",
-            manifest_path
+            edition_path
                 .parent()
                 .unwrap()
                 .file_name()
@@ -153,7 +211,7 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
                 .unwrap()
         );
 
-        let edition: Edition = read_yaml_as(&manifest_path)?;
+        let edition: Edition = read_yaml_as(&edition_path)?;
         println!("{BOLD}    Type        {RESET} {:?}", edition.r#type);
         println!("{BOLD}    ISBN        {RESET} {}", edition.isbn);
         println!("{BOLD}    Resume      {RESET} {}", is_set(&edition.resume));
@@ -175,7 +233,7 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
             EditionType::Epub => {
                 make_epub(PandocInputs {
                     book_path: book_path.to_path_buf(),
-                    edition_path: manifest_path.parent().unwrap().to_path_buf(),
+                    edition_path: edition_path.parent().unwrap().to_path_buf(),
                     cover_path: cover_path.clone(),
                     metadata: metadata.clone(),
                     edition,
@@ -185,7 +243,7 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
             EditionType::Pdf => {
                 make_pdf(PandocInputs {
                     book_path: book_path.to_path_buf(),
-                    edition_path: manifest_path.parent().unwrap().to_path_buf(),
+                    edition_path: edition_path.parent().unwrap().to_path_buf(),
                     cover_path: cover_path.clone(),
                     metadata: metadata.clone(),
                     edition,
@@ -197,7 +255,7 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn make_epub(inputs: PandocInputs) -> Result<()> {
+fn make_epub(inputs: PandocInputs) -> Result<(), Error> {
     let PandocInputs {
         book_path,
         edition_path,
@@ -277,7 +335,7 @@ fn make_epub(inputs: PandocInputs) -> Result<()> {
     Ok(())
 }
 
-fn make_pdf(inputs: PandocInputs) -> Result<()> {
+fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
     let PandocInputs {
         book_path,
         edition_path,
@@ -362,7 +420,7 @@ fn make_pdf(inputs: PandocInputs) -> Result<()> {
     Ok(())
 }
 
-fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>> {
+fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>, Error> {
     let opts = match inputs.edition.r#type {
         EditionType::Epub => {
             let blitz_content = include_str!("../css/epub/blitz.css");
@@ -388,7 +446,11 @@ fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>> {
     Ok(opts)
 }
 
-fn make_filter(r#type: FilterType, inputs: &PandocInputs, output_path: &Path) -> Result<PathBuf> {
+fn make_filter(
+    r#type: FilterType,
+    inputs: &PandocInputs,
+    output_path: &Path,
+) -> Result<PathBuf, Error> {
     let (filepath, content) = match r#type {
         FilterType::PageBreak => {
             let content = match inputs.edition.r#type {
@@ -420,7 +482,7 @@ fn make_metadata(
     r#type: MetadataType,
     inputs: &PandocInputs,
     output_path: &Path,
-) -> Result<PathBuf> {
+) -> Result<PathBuf, Error> {
     let (filepath, content) = match r#type {
         MetadataType::Date => {
             let data = DateMetadata {
@@ -464,7 +526,11 @@ fn make_metadata(
     Ok(filepath)
 }
 
-fn make_page(r#type: PageType, inputs: &PandocInputs, output_path: &Path) -> Result<PathBuf> {
+fn make_page(
+    r#type: PageType,
+    inputs: &PandocInputs,
+    output_path: &Path,
+) -> Result<PathBuf, Error> {
     let (filename, content) = match r#type {
         PageType::AvantPropos => {
             let content = match inputs.edition.r#type {
@@ -549,7 +615,7 @@ fn make_page(r#type: PageType, inputs: &PandocInputs, output_path: &Path) -> Res
     };
 
     let filepath = output_path.join(filename);
-    let content = apply_replacements(content, &inputs);
+    let content = apply_replacements(content, inputs, inputs.clone().into())?;
 
     std::fs::write(&filepath, content)?;
 
@@ -558,7 +624,7 @@ fn make_page(r#type: PageType, inputs: &PandocInputs, output_path: &Path) -> Res
     Ok(filepath)
 }
 
-fn read_yaml_as<T, P: AsRef<Path>>(path: &P) -> Result<T>
+fn read_yaml_as<T, P: AsRef<Path>>(path: &P) -> Result<T, Error>
 where
     T: for<'a> Deserialize<'a>,
 {
@@ -577,25 +643,18 @@ fn is_set(value: &str) -> &str {
     }
 }
 
-fn apply_replacements(content: &str, inputs: &PandocInputs) -> String {
-    let mut content = content
-        .to_string()
-        .replace("ANNEE_COPYRIGHT", &inputs.edition.annee_copyright)
-        .replace("AUTEUR", &inputs.metadata.auteur)
-        .replace("AVANT_PROPOS", &inputs.edition.avant_propos)
-        .replace("COLLECTION", &inputs.metadata.collection)
-        .replace("COVER_PATH", inputs.cover_path.to_str().unwrap())
-        .replace("DATE_DEPOT_LEGAL", &inputs.edition.date_depot_legal)
-        .replace("DEDICACE", &inputs.edition.dedicace)
-        .replace("EDITEUR", &inputs.edition.editeur)
-        .replace("EPIGRAPHE", &inputs.edition.epigraphe)
-        .replace("ISBN_NUMBER", &inputs.edition.isbn)
-        .replace("PREFACE", &inputs.edition.preface)
-        .replace("TITRE", &inputs.metadata.titre);
+fn apply_replacements(
+    content: &str,
+    inputs: &PandocInputs,
+    replacements: Replacements,
+) -> Result<String, Error> {
+    let mut handlebars = Handlebars::new();
+    handlebars.register_escape_fn(handlebars::no_escape);
+    let mut content = handlebars.render_template(content, &replacements)?;
 
     if inputs.edition.r#type == EditionType::Pdf {
         content = content.replace("_", "\\_");
     }
 
-    content
+    Ok(content)
 }

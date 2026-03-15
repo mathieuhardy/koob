@@ -1,5 +1,5 @@
 ::: {.avant-propos}
 ::: {.inner}
-AVANT_PROPOS
+{{avant_propos}}
 :::
 :::

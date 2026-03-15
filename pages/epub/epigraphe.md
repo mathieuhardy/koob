@@ -1,5 +1,5 @@
 ::: {.epigraphe}
 ::: {.inner}
-EPIGRAPHE
+{{epigraphe}}
 :::
 :::

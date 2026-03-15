@@ -1,5 +1,5 @@
 ::: {.dedicace}
 ::: {.inner}
-DEDICACE
+{{dedicace}}
 :::
 :::

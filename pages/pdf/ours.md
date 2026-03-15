@@ -5,8 +5,8 @@
 \vspace*{\fill}
 
 \begin{center}
-    {\small © AUTEUR, ANNEE_COPYRIGHT} \\[0.2cm]
-    {\small Éditeur : EDITEUR} \\[0.2cm]
-    {\small ISBN : ISBN_NUMBER} \\[0.2cm]
-    {\small Dépôt légal : DATE_DEPOT_LEGAL}
+    {\small © {{auteur}}, {{annee_copyright}} } \\[0.2cm]
+    {\small Éditeur : {{editeur}} } \\[0.2cm]
+    {\small ISBN : {{isbn_number}} } \\[0.2cm]
+    {\small Dépôt légal : {{date_depot_legal}} }
 \end{center}
