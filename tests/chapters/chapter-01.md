@@ -1,4 +1,4 @@
-::: {.chapitre}
+::: {.chapter}
 ::: {.inner}
 # 01
 ## Premier chapitre

@@ -1,4 +1,4 @@
-::: {.chapitre}
+::: {.chapter}
 ::: {.inner}
 # 02
 ## Deuxième chapitre

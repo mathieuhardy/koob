@@ -1,23 +1,23 @@
 type: epub
 isbn: 978-3-16-148410-0
 date: 01-01-2025
-annee_copyright: 2025
-date_depot_legal: Janvier 2025
-editeur: Machin Chouette
+copyright_year: 2025
+legal_deposit: Janvier 2025
+publisher: Machin Chouette
 
-resume: Ceci est un résumé de l'ouvrage.
+summary: Ceci est un résumé de l'ouvrage.
 preface: Ceci est la préface de l'ouvrage, où l'auteur présente les grandes lignes de son travail.
-avant_propos: Ceci est l'avant-propos de l'ouvrage, qui introduit le contexte et les motivations de l'auteur.
-dedicace: À moi, qui a cru en moi.
-epigraphe: « À vrai dire, il n’y a pas de quoi être fier d’être un homme. » – André Gide
+foreword: Ceci est l'avant-propos de l'ouvrage, qui introduit le contexte et les motivations de l'auteur.
+dedication: À moi, qui a cru en moi.
+epigraph: « À vrai dire, il n’y a pas de quoi être fier d’être un homme. » – André Gide
 
 pages:
-  - couverture
-  - vide
-  - faux_titre
-  - titre
-  - ours
-  - dedicace
-  - epigraphe
+  - cover
+  - empty
+  - half_title
+  - title
+  - copyright
+  - dedication
+  - epigraph
   - preface
-  - avant_propos
+  - foreword

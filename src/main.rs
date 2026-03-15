@@ -13,16 +13,19 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 enum Error {
     #[error(transparent)]
+    Glob(#[from] glob::PatternError),
+
+    #[error(transparent)]
     Handlebars(#[from] handlebars::RenderError),
 
     #[error(transparent)]
     IO(#[from] std::io::Error),
 
-    #[error(transparent)]
-    Glob(#[from] glob::PatternError),
-
     #[error("{0}")]
     MissingCover(PathBuf),
+
+    #[error("No CSS for PDF")]
+    NoCssForPdf,
 
     #[error(transparent)]
     Pandoc(#[from] pandoc::PandocError),
@@ -42,30 +45,29 @@ enum MetadataType {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "snake_case")]
 enum PageType {
-    Vide,
-    Couverture,
-    AvantPropos,
-    Dedicace,
-    Epigraphe,
-    FauxTitre,
-    Ours,
+    Copyright,
+    Cover,
+    Dedication,
+    Empty,
+    Epigraph,
+    Foreword,
+    HalfTitle,
     Preface,
-    Titre,
+    Title,
 }
 
 #[derive(Debug)]
 enum FilterType {
-    PageBreak,
-    Title,
+    SpecialPages,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 struct Metadata {
     filename: String,
     cover: String,
-    titre: String,
-    auteur: String,
-    collection: String,
+    title: String,
+    author: String,
+    series: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize)]
@@ -81,14 +83,14 @@ struct Edition {
     r#type: EditionType,
     isbn: String,
     date: String,
-    annee_copyright: String,
-    date_depot_legal: String,
-    editeur: String,
-    resume: String,
+    copyright_year: String,
+    legal_deposit: String,
+    publisher: String,
+    summary: String,
     preface: String,
-    avant_propos: String,
-    dedicace: String,
-    epigraphe: String,
+    foreword: String,
+    dedication: String,
+    epigraph: String,
     pages: Vec<PageType>,
 }
 
@@ -133,34 +135,34 @@ struct PdfMetadata {
 
 #[derive(Clone, Debug, Serialize)]
 struct Replacements {
-    titre: String,
-    auteur: String,
-    collection: String,
-    annee_copyright: String,
-    date_depot_legal: String,
+    title: String,
+    author: String,
+    series: String,
+    copyright_year: String,
+    legal_deposit: String,
     isbn_number: String,
     cover_path: PathBuf,
-    avant_propos: String,
-    dedicace: String,
-    editeur: String,
-    epigraphe: String,
+    foreword: String,
+    dedication: String,
+    publisher: String,
+    epigraph: String,
     preface: String,
 }
 
 impl From<PandocInputs> for Replacements {
     fn from(inputs: PandocInputs) -> Self {
         Replacements {
-            titre: inputs.metadata.titre,
-            auteur: inputs.metadata.auteur,
-            collection: inputs.metadata.collection,
-            annee_copyright: inputs.edition.annee_copyright,
-            date_depot_legal: inputs.edition.date_depot_legal,
+            title: inputs.metadata.title,
+            author: inputs.metadata.author,
+            series: inputs.metadata.series,
+            copyright_year: inputs.edition.copyright_year,
+            legal_deposit: inputs.edition.legal_deposit,
             isbn_number: inputs.edition.isbn,
             cover_path: inputs.cover_path,
-            avant_propos: inputs.edition.avant_propos,
-            dedicace: inputs.edition.dedicace,
-            editeur: inputs.edition.editeur,
-            epigraphe: inputs.edition.epigraphe,
+            foreword: inputs.edition.foreword,
+            dedication: inputs.edition.dedication,
+            publisher: inputs.edition.publisher,
+            epigraph: inputs.edition.epigraph,
             preface: inputs.edition.preface,
         }
     }
@@ -179,15 +181,15 @@ fn main() -> Result<(), Error> {
 }
 
 fn process_book(book_path: &Path, metadata_path: &Path) -> Result<(), Error> {
-    println!("{BG_MAGENTA}{BOLD} {} {RESET}", book_path.display());
+    println!("{BLACK}{BG_MAGENTA}{BOLD} {} {RESET}", book_path.display());
 
     // Read metadata of the book
     let metadata: Metadata = read_yaml_as(&metadata_path)?;
 
     println!("{BOLD}  Filename{RESET} {}", metadata.filename);
     println!("{BOLD}  Cover   {RESET} {}", metadata.cover);
-    println!("{BOLD}  Titre   {RESET} {}", metadata.titre);
-    println!("{BOLD}  Auteur  {RESET} {}", metadata.auteur);
+    println!("{BOLD}  Title   {RESET} {}", metadata.title);
+    println!("{BOLD}  Author  {RESET} {}", metadata.author);
 
     // Get path to the cover image
     let cover_path = book_path.join(&metadata.cover);
@@ -214,19 +216,19 @@ fn process_book(book_path: &Path, metadata_path: &Path) -> Result<(), Error> {
         let edition: Edition = read_yaml_as(&edition_path)?;
         println!("{BOLD}    Type        {RESET} {:?}", edition.r#type);
         println!("{BOLD}    ISBN        {RESET} {}", edition.isbn);
-        println!("{BOLD}    Resume      {RESET} {}", is_set(&edition.resume));
+        println!("{BOLD}    Summary     {RESET} {}", is_set(&edition.summary));
         println!("{BOLD}    Preface     {RESET} {}", is_set(&edition.preface));
         println!(
-            "{BOLD}    Avant-propos{RESET} {}",
-            is_set(&edition.avant_propos)
+            "{BOLD}    Foreword    {RESET} {}",
+            is_set(&edition.foreword)
         );
         println!(
-            "{BOLD}    Dedicace    {RESET} {}",
-            is_set(&edition.dedicace)
+            "{BOLD}    Dedication  {RESET} {}",
+            is_set(&edition.dedication)
         );
         println!(
-            "{BOLD}    Epigraphe   {RESET} {}",
-            is_set(&edition.epigraphe)
+            "{BOLD}    Epigraph    {RESET} {}",
+            is_set(&edition.epigraph)
         );
 
         match edition.r#type {
@@ -284,28 +286,8 @@ fn make_epub(inputs: PandocInputs) -> Result<(), Error> {
     }
 
     // Create pages
-    let page_vide = make_page(PageType::Vide, &inputs, &output_path)?;
-    let page_couverture = make_page(PageType::Couverture, &inputs, &output_path)?;
-    let page_avant_propos = make_page(PageType::AvantPropos, &inputs, &output_path)?;
-    let page_dedicace = make_page(PageType::Dedicace, &inputs, &output_path)?;
-    let page_epigraphe = make_page(PageType::Epigraphe, &inputs, &output_path)?;
-    let page_faux_titre = make_page(PageType::FauxTitre, &inputs, &output_path)?;
-    let page_ours = make_page(PageType::Ours, &inputs, &output_path)?;
-    let page_preface = make_page(PageType::Preface, &inputs, &output_path)?;
-    let page_titre = make_page(PageType::Titre, &inputs, &output_path)?;
-
-    for page in inputs.edition.pages {
-        match page {
-            PageType::Couverture => pandoc_inputs.push(page_couverture.clone()),
-            PageType::Vide => pandoc_inputs.push(page_vide.clone()),
-            PageType::AvantPropos => pandoc_inputs.push(page_avant_propos.clone()),
-            PageType::Dedicace => pandoc_inputs.push(page_dedicace.clone()),
-            PageType::Epigraphe => pandoc_inputs.push(page_epigraphe.clone()),
-            PageType::FauxTitre => pandoc_inputs.push(page_faux_titre.clone()),
-            PageType::Ours => pandoc_inputs.push(page_ours.clone()),
-            PageType::Preface => pandoc_inputs.push(page_preface.clone()),
-            PageType::Titre => pandoc_inputs.push(page_titre.clone()),
-        }
+    for page in &inputs.edition.pages {
+        pandoc_inputs.push(make_page(page, &inputs, &output_path)?)
     }
 
     // Collect chapters
@@ -354,12 +336,8 @@ fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
 
     let pdf_path = output_path.join(format!("{}.pdf", metadata.filename));
 
-    // Create CSS options
-    let css_options = make_css_options(&inputs)?;
-
     // Create filters
-    let f_pagebreak = make_filter(FilterType::PageBreak, &inputs, &output_path)?;
-    let f_title = make_filter(FilterType::Title, &inputs, &output_path)?;
+    let f_special_pages = make_filter(FilterType::SpecialPages, &inputs, &output_path)?;
 
     // Create metadata files
     for r#type in [MetadataType::Pdf, MetadataType::Date] {
@@ -368,28 +346,8 @@ fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
     }
 
     // Create pages
-    let page_vide = make_page(PageType::Vide, &inputs, &output_path)?;
-    let page_couverture = make_page(PageType::Couverture, &inputs, &output_path)?;
-    let page_avant_propos = make_page(PageType::AvantPropos, &inputs, &output_path)?;
-    let page_dedicace = make_page(PageType::Dedicace, &inputs, &output_path)?;
-    let page_epigraphe = make_page(PageType::Epigraphe, &inputs, &output_path)?;
-    let page_faux_titre = make_page(PageType::FauxTitre, &inputs, &output_path)?;
-    let page_ours = make_page(PageType::Ours, &inputs, &output_path)?;
-    let page_preface = make_page(PageType::Preface, &inputs, &output_path)?;
-    let page_titre = make_page(PageType::Titre, &inputs, &output_path)?;
-
-    for page in inputs.edition.pages {
-        match page {
-            PageType::Couverture => pandoc_inputs.push(page_couverture.clone()),
-            PageType::AvantPropos => pandoc_inputs.push(page_avant_propos.clone()),
-            PageType::Vide => pandoc_inputs.push(page_vide.clone()),
-            PageType::Dedicace => pandoc_inputs.push(page_dedicace.clone()),
-            PageType::Epigraphe => pandoc_inputs.push(page_epigraphe.clone()),
-            PageType::FauxTitre => pandoc_inputs.push(page_faux_titre.clone()),
-            PageType::Ours => pandoc_inputs.push(page_ours.clone()),
-            PageType::Preface => pandoc_inputs.push(page_preface.clone()),
-            PageType::Titre => pandoc_inputs.push(page_titre.clone()),
-        }
+    for page in &inputs.edition.pages {
+        pandoc_inputs.push(make_page(page, &inputs, &output_path)?)
     }
 
     // Collect chapters
@@ -413,12 +371,9 @@ fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
         .add_option(PandocOption::Template(PathBuf::from(
             "templates/template.typ",
         )))
-        .arg("variable", "mainfont=Liberation Sherif")
-        // style sheets
-        .add_options(&css_options)
+        .arg("variable", "mainfont=EB Garamond")
         // Pandoc filters
-        .arg("lua-filter", &f_pagebreak.display().to_string())
-        .arg("lua-filter", &f_title.display().to_string())
+        .arg("lua-filter", &f_special_pages.display().to_string())
         // .arg("split-level", "1")
         .clone()
         .execute()?;
@@ -429,7 +384,7 @@ fn make_pdf(inputs: PandocInputs) -> Result<(), Error> {
 }
 
 fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>, Error> {
-    let opts = match inputs.edition.r#type {
+    match inputs.edition.r#type {
         EditionType::Epub => {
             let blitz_content = include_str!("../css/epub/blitz.css");
             let content = include_str!("../css/epub/style.css");
@@ -438,20 +393,12 @@ fn make_css_options(inputs: &PandocInputs) -> Result<Vec<PandocOption>, Error> {
             file.write_all(blitz_content.as_bytes())?;
             file.write_all(content.as_bytes())?;
 
-            vec![PandocOption::Css("/tmp/koob_epub_style.css".to_string())]
+            let opts = vec![PandocOption::Css("/tmp/koob_epub_style.css".to_string())];
+            Ok(opts)
         }
 
-        EditionType::Pdf => {
-            let content = include_str!("../css/pdf/style.css");
-
-            let mut file = std::fs::File::create("/tmp/koob_pdf_style.css")?;
-            file.write_all(content.as_bytes())?;
-
-            vec![PandocOption::Css("/tmp/koob_pdf_style.css".to_string())]
-        }
-    };
-
-    Ok(opts)
+        EditionType::Pdf => Err(Error::NoCssForPdf),
+    }
 }
 
 fn make_filter(
@@ -460,22 +407,13 @@ fn make_filter(
     output_path: &Path,
 ) -> Result<PathBuf, Error> {
     let (filepath, content) = match r#type {
-        FilterType::PageBreak => {
+        FilterType::SpecialPages => {
             let content = match inputs.edition.r#type {
                 EditionType::Epub => "",
-                EditionType::Pdf => include_str!("../filters/pdf/pagebreak.lua"),
+                EditionType::Pdf => include_str!("../filters/pdf/special_pages.lua"),
             };
 
-            (output_path.join("pagebreak.lua"), content)
-        }
-
-        FilterType::Title => {
-            let content = match inputs.edition.r#type {
-                EditionType::Epub => "",
-                EditionType::Pdf => include_str!("../filters/pdf/title.lua"),
-            };
-
-            (output_path.join("title.lua"), content)
+            (output_path.join("special_pages.lua"), content)
         }
     };
 
@@ -504,11 +442,11 @@ fn make_metadata(
             let data = EpubMetadata {
                 title: vec![EpubTitleMetadata {
                     r#type: "main".to_string(),
-                    text: inputs.metadata.titre.clone(),
+                    text: inputs.metadata.title.clone(),
                 }],
                 creator: vec![EpubCreatorMetadata {
                     role: "author".to_string(),
-                    text: inputs.metadata.auteur.clone(),
+                    text: inputs.metadata.author.clone(),
                 }],
                 language: "fr-FR".to_string(),
             };
@@ -535,72 +473,72 @@ fn make_metadata(
 }
 
 fn make_page(
-    r#type: PageType,
+    r#type: &PageType,
     inputs: &PandocInputs,
     output_path: &Path,
 ) -> Result<PathBuf, Error> {
     let (filename, content) = match r#type {
-        PageType::AvantPropos => {
+        PageType::Foreword => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/avant_propos.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/avant_propos.md"),
+                EditionType::Epub => include_str!("../pages/epub/foreword.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/foreword.md"),
             };
 
-            ("avant_propos.md", content)
+            ("foreword.md", content)
         }
 
-        PageType::Vide => {
+        PageType::Empty => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/vide.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/vide.md"),
+                EditionType::Epub => include_str!("../pages/epub/empty.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/empty.md"),
             };
 
-            ("vide.md", content)
+            ("empty.md", content)
         }
 
-        PageType::Couverture => {
+        PageType::Cover => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/couverture.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/couverture.md"),
+                EditionType::Epub => include_str!("../pages/epub/cover.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/cover.md"),
             };
 
-            ("couverture.md", content)
+            ("cover.md", content)
         }
 
-        PageType::Dedicace => {
+        PageType::Dedication => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/dedicace.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/dedicace.md"),
+                EditionType::Epub => include_str!("../pages/epub/dedication.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/dedication.md"),
             };
 
-            ("dedicace.md", content)
+            ("dedication.md", content)
         }
 
-        PageType::Epigraphe => {
+        PageType::Epigraph => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/epigraphe.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/epigraphe.md"),
+                EditionType::Epub => include_str!("../pages/epub/epigraph.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/epigraph.md"),
             };
 
-            ("epigraphe.md", content)
+            ("epigraph.md", content)
         }
 
-        PageType::FauxTitre => {
+        PageType::HalfTitle => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/faux_titre.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/faux_titre.md"),
+                EditionType::Epub => include_str!("../pages/epub/half_title.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/half_title.md"),
             };
 
-            ("faux_titre.md", content)
+            ("half_title.md", content)
         }
 
-        PageType::Ours => {
+        PageType::Copyright => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/ours.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/ours.md"),
+                EditionType::Epub => include_str!("../pages/epub/copyright.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/copyright.md"),
             };
 
-            ("ours.md", content)
+            ("copyright.md", content)
         }
 
         PageType::Preface => {
@@ -612,13 +550,13 @@ fn make_page(
             ("preface.md", content)
         }
 
-        PageType::Titre => {
+        PageType::Title => {
             let content = match inputs.edition.r#type {
-                EditionType::Epub => include_str!("../pages/epub/titre.md"),
-                EditionType::Pdf => include_str!("../pages/pdf/titre.md"),
+                EditionType::Epub => include_str!("../pages/epub/title.md"),
+                EditionType::Pdf => include_str!("../pages/pdf/title.md"),
             };
 
-            ("titre.md", content)
+            ("title.md", content)
         }
     };
 

@@ -1,0 +1,5 @@
+::: {.dedication}
+::: {.inner}
+{{dedication}}
+:::
+:::

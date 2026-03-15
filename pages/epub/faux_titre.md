@@ -1,5 +1,0 @@
-::: {.faux-titre}
-::: {.inner}
-# {{titre}}
-:::
-:::

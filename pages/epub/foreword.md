@@ -1,0 +1,5 @@
+::: {.foreword}
+::: {.inner}
+{{foreword}}
+:::
+:::

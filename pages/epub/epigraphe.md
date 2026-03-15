@@ -1,5 +1,0 @@
-::: {.epigraphe}
-::: {.inner}
-{{epigraphe}}
-:::
-:::

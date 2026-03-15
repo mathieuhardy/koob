@@ -1,5 +1,0 @@
-::: {.titre}
-# {{titre}}
-## {{auteur}}
-### {{collection}}
-:::

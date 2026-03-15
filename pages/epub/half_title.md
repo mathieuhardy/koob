@@ -1,0 +1,5 @@
+::: {.half-title}
+::: {.inner}
+# {{title}}
+:::
+:::
